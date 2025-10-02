@@ -1,103 +1,104 @@
-import Image from "next/image";
+"use client";
+import { CreateUserModal } from "@/compoments/PopupForm";
+import { deleteUserById, fetchUsers } from "@/utils/user.api";
+import { User } from "@/utils/user.types";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import Loading from "./loading";
 
-export default function Home() {
+export default function UsersPage() {
+  const queryClient = useQueryClient();
+  const {
+    data: tableItems,
+    isLoading,
+    isError,
+    error,
+  } = useQuery<User[], Error>({
+    queryKey: ["users"],
+    queryFn: fetchUsers,
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: number) => deleteUserById(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["users"] });
+    },
+  });
+
+  const [showModal, setShowModal] = useState(false);
+
+  if (isLoading) return <Loading />;
+
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
-
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    <div className="max-w-screen-xl mx-auto px-4 md:px-8">
+      <div className="items-start justify-between md:flex">
+        <div className="max-w-lg">
+          <h3 className="text-gray-800 text-xl font-bold sm:text-2xl">
+            Team members
+          </h3>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+        <div className="mt-3 md:mt-0">
+          <button
+            onClick={() => setShowModal(true)}
+            className="inline-block px-4 py-2 text-white duration-150 font-medium bg-indigo-600 rounded-lg hover:bg-indigo-500 active:bg-indigo-700 md:text-sm"
+          >
+            Add member
+          </button>
+        </div>
+      </div>
+      <div className="mt-12 shadow-sm border rounded-lg overflow-x-auto">
+        <table className="w-full table-auto text-sm text-left">
+          <thead className="bg-gray-50 text-gray-600 font-medium border-b">
+            <tr>
+              <th className="py-3 px-6">id</th>
+              <th className="py-3 px-6">fullname</th>
+              <th className="py-3 px-6">age</th>
+              <th className="py-3 px-6">gender</th>
+              <th className="py-3 px-6">create at</th>
+              <th className="py-3 px-6">update at</th>
+            </tr>
+          </thead>
+          <tbody className="text-gray-600 divide-y">
+            {tableItems?.map((item, idx) => (
+              <tr key={idx}>
+                <td className="flex items-center gap-x-3 py-3 px-6 whitespace-nowrap">
+                  <div>
+                    <span className="block text-gray-700 text-sm font-medium">
+                      {item.id}
+                    </span>
+                  </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">{item.fullname}</td>
+                <td className="px-6 py-4 whitespace-nowrap">{item.age}</td>
+                <td className="px-6 py-4 whitespace-nowrap">{item.gender}</td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  {item.updatedAt}
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  {item.createdAt}
+                </td>
+
+                <td className="text-right px-6 whitespace-nowrap">
+                  <a
+                    href="javascript:void()"
+                    className="py-2 px-3 font-medium text-indigo-600 hover:text-indigo-500 duration-150 hover:bg-gray-50 rounded-lg"
+                  >
+                    Edit
+                  </a>
+                  <button
+                    onClick={() => deleteMutation.mutate(item.id)}
+                    className="py-2 leading-none px-3 font-medium text-red-600 hover:text-red-500 duration-150 hover:bg-gray-50 rounded-lg"
+                  >
+                    {deleteMutation.isPending ? "deleting..." : "delete"}
+                  </button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        
+      </div>
+      {showModal && <CreateUserModal onClose={() => setShowModal(false)} />}
     </div>
   );
 }
