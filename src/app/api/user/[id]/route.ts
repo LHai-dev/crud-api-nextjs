@@ -1,8 +1,12 @@
-import { HttpStatus } from "@/constants/http-status";
+import { userUpdateSchema } from "@/db/schema";
 import { apiHandler, BadRequestException } from "@/error";
-import { createSuccessResponse } from "@/lib/api-response";
-import { userService } from "@/server/user/user.service";
-import { NextRequest, NextResponse } from "next/server";
+import {
+  createNoContentResponse,
+  createSuccessResponse,
+} from "@/lib/api-response";
+import { userService } from "@/server/user";
+
+import { NextRequest } from "next/server";
 
 export const GET = apiHandler<NextRequest>(async (req) => {
   const { pathname } = req.nextUrl;
@@ -23,16 +27,20 @@ export const DELETE = apiHandler<NextRequest>(async (req) => {
     throw new BadRequestException("User ID is required");
   }
   await userService.deleteUser(Number(id));
-  return new NextResponse(null, { status: HttpStatus.NO_CONTENT });
+  return createNoContentResponse();
 });
 export const PUT = apiHandler<NextRequest>(async (req) => {
   const { pathname } = req.nextUrl;
   const parts = pathname.split("/");
   const id = parts[parts.length - 1];
   const body = await req.json();
+  const validatedBody = userUpdateSchema.safeParse(body);
   if (!id) {
     throw new BadRequestException("User ID is required");
   }
-  await userService.updateUser(Number(id), body);
-  return new NextResponse(null, { status: HttpStatus.NO_CONTENT });
+  if (!validatedBody.success) {
+    throw new BadRequestException(validatedBody.error.message);
+  }
+  await userService.updateUser(Number(id), validatedBody.data);
+  return createNoContentResponse();
 });

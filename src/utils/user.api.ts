@@ -1,4 +1,4 @@
-import { User } from "@/utils/user.types";
+import { User } from "@/utils/user.type";
 
 export const fetchUsers = async (): Promise<User[]> => {
   const res = await fetch("/api/user");
@@ -11,8 +11,8 @@ export const fetchUsers = async (): Promise<User[]> => {
 };
 
 export const createUser = async (
-  user: Pick<User, "id" | "createdAt" | "updatedAt">
-): Promise<User> => {
+  user:{fullname: string; age: number; gender: string}
+)=> {
   const res = await fetch("/api/user", {
     method: "POST",
     headers: { "Content-Type": "application/json" },

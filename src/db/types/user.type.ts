@@ -7,6 +7,7 @@ export const UserGender = {
   NOT_SPECIFIED: "Not specified",
   OTHER: "Other",
 } as const;
+
 export const UserGenderEnum = z.enum([
   UserGender.MALE,
   UserGender.FEMALE,

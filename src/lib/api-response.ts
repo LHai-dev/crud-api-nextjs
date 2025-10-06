@@ -25,6 +25,24 @@ export function createSuccessResponse<T>(
     { status }
   );
 }
+export function createCreatedResponse(location?: string) {
+  const headers: HeadersInit = {};
+
+  if (location) {
+    headers["Location"] = location;
+  }
+
+  return new NextResponse(null, {
+    status: HttpStatus.CREATED,
+    headers,
+  });
+}
+
+export function createNoContentResponse() {
+  return new NextResponse(null, {
+    status: HttpStatus.NO_CONTENT,
+  });
+}
 
 export function createErrorResponse(
   message: string,
