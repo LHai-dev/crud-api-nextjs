@@ -1,12 +1,13 @@
+import z from "zod";
+import { isValidPhoneNumber } from "react-phone-number-input";
 export interface User {
   id: number;
-  fullname: string;
+  lastName: string;
+  firstName: string;
+  phoneNumber: string;
   age: number;
   gender: string;
-  createdAt: string;
-  updatedAt: string;
 }
-import z from "zod";
 
 export enum GenderType {
   MALE = "Male",
@@ -14,10 +15,10 @@ export enum GenderType {
   OTHER = "Other",
 }
 export const FormSchema = z.object({
-  lastname: z.string().min(2, {
+  lastName: z.string().min(2, {
     message: "lastname must be at least 2 characters.",
   }),
-  firstname: z.string().min(2, {
+  firstName: z.string().min(2, {
     message: "firstname name must be at least 2 characters.",
   }),
   gender: z.enum([GenderType.MALE, GenderType.FEMALE, GenderType.OTHER], {
@@ -29,6 +30,7 @@ export const FormSchema = z.object({
     .max(120, { message: "Age must be less than or equal to 120." }),
   phoneNumber: z
     .string()
-    .min(1, "Phone number is required")
-    .regex(/^[\+855]?[1-9][\d]{0,15}$/, "Invalid phone number format"),
+    .refine(isValidPhoneNumber, { message: "Invalid phone number" }),
 });
+
+export type FormInfo = z.infer<typeof FormSchema>

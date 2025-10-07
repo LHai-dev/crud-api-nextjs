@@ -1,22 +1,25 @@
-export default function notFound() {
-    return (
-<main>
-  <div className="max-w-screen-xl mx-auto px-4 flex items-center justify-start h-screen md:px-8">
-      <div className="max-w-lg mx-auto space-y-3 text-center">
-          <h3 className="text-gray-800 text-4xl font-semibold sm:text-5xl">
-              Page not found
-          </h3>
-          <p className="text-gray-600">
-              Sorry, the page you are looking for could not be found or has been removed.
+import Link from "next/link";
+
+export default function Component() {
+  return (
+    <div className="flex items-center min-h-screen px-4 py-12 sm:px-6 md:px-8 lg:px-12 xl:px-16">
+      <div className="w-full space-y-6 text-center">
+        <div className="space-y-3">
+          <h1 className="text-4xl font-bold tracking-tighter sm:text-5xl transition-transform hover:scale-110">
+            404
+          </h1>
+          <p className="text-gray-500">
+            Looks like you've ventured into the unknown digital realm.
           </p>
-          <a href="javascript:void(0)" className="text-indigo-600 duration-150 hover:text-indigo-400 font-medium inline-flex items-center gap-x-1">
-              Go back
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="w-5 h-5">
-                  <path fillRule="evenodd" d="M5 10a.75.75 0 01.75-.75h6.638L10.23 7.29a.75.75 0 111.04-1.08l3.5 3.25a.75.75 0 010 1.08l-3.5 3.25a.75.75 0 11-1.04-1.08l2.158-1.96H5.75A.75.75 0 015 10z" clipRule="evenodd" />
-              </svg>
-          </a>
+        </div>
+        <Link
+          href="/"
+          className="inline-flex h-10 items-center rounded-md bg-gray-900 px-8 text-sm font-medium text-gray-50 shadow transition-colors hover:bg-gray-900/90 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-gray-950 disabled:pointer-events-none disabled:opacity-50 dark:bg-gray-50 dark:text-gray-900 dark:hover:bg-gray-50/90 dark:focus-visible:ring-gray-300"
+          prefetch={false}
+        >
+          Return to website
+        </Link>
       </div>
-  </div>
-</main>
-    );
-} 
+    </div>
+  );
+}

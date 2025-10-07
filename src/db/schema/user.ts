@@ -1,4 +1,3 @@
-import { sql } from "drizzle-orm";
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import {
   createInsertSchema,
@@ -10,21 +9,37 @@ import { UserGender } from "../types/user.type";
 
 export const userTable = sqliteTable("users", {
   id: integer({ mode: "number" }).primaryKey({ autoIncrement: true }),
-  fullname: text().notNull(),
+  lastName: text("last_name").notNull(),
+  firstName: text("first_name").notNull(),
   age: integer().notNull(),
+  phoneNumber: text("phone_number").unique().notNull(),
   gender: text({
-    enum: [UserGender.FEMALE, UserGender.MALE, UserGender.OTHER],
+    enum: [UserGender.FEMALE, UserGender.MALE],
   }).notNull(),
-  createdAt: text().default(sql`(CURRENT_DATE)`),
-  updatedAt: text().default(sql`(CURRENT_DATE)`),
 });
 
-export const userSelectSchema = createSelectSchema(userTable,{
-  age: (schema) => schema.min(0).max(120),
-}
-);
-export const userInsertSchema = createInsertSchema(userTable);
-export const userUpdateSchema = createUpdateSchema(userTable);
+export const userSelectSchema = createSelectSchema(userTable);
+export const userInsertSchema = createInsertSchema(userTable, {
+  firstName: (schema) => schema.min(2).max(50),
+  lastName: (schema) => schema.min(2).max(50),
+  age: (schema) => schema.min(18).max(100),
+  phoneNumber: (schema) =>
+    schema.regex(
+      /^\+855[1-9]\d{7,8}$/,
+      'Phone number must be in international format starting with +855 followed by 8 or 9 digits (e.g., +85512345678 or +855912345678)'
+    ),
+});
+
+export const userUpdateSchema = createUpdateSchema(userTable,{
+  firstName: (schema) => schema.min(2).max(50),
+  lastName: (schema) => schema.min(2).max(50),
+  age: (schema) => schema.min(18).max(100),
+  phoneNumber: (schema) =>
+    schema.regex(
+      /^\+855[1-9]\d{7,8}$/,
+      'Phone number must be in international format starting with +855 followed by 8 or 9 digits (e.g., +85512345678 or +855912345678)'
+    ),
+});
 
 export type User = z.infer<typeof userSelectSchema>;
 export type NewUser = z.infer<typeof userInsertSchema>;
