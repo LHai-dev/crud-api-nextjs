@@ -2,6 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -41,6 +42,9 @@ interface Prop{
 }
 
 export function InputForm() {
+  
+  const [editingUserId, setEditingUserId] = useState<number | null>(null);
+
   const form = useForm({
     resolver: zodResolver(FormSchema),
     defaultValues: {
@@ -52,17 +56,6 @@ export function InputForm() {
     },
   });
 
-  function onSubmit(data: FormInfo) {
-
-    toast.success("Form submitted successfully!", {
-      description: (
-        <pre className="mt-2 w-full max-w-[340px] overflow-x-auto rounded-md bg-neutral-900/80 p-3 text-xs text-white">
-          <code>{JSON.stringify(data, null, 2)}</code>
-        </pre>
-      ),
-    });
-    createUser(data)
-  }
 
   return (
     <Card>
@@ -74,7 +67,7 @@ export function InputForm() {
       <CardContent className="space-y-4">
         <Form {...form}>
           <form
-            onSubmit={form.handleSubmit(onSubmit)}
+            // onSubmit={form.handleSubmit(onSubmit)}
             className="space-y-6"
             id="user-form"
           >
@@ -201,8 +194,8 @@ export function InputForm() {
       </CardContent>
 
       <CardFooter>
-        <Button type="submit" className="w-full" form="user-form">
-          submit
+        <Button type="submit" className="w-full" form="user-form" disabled={form.formState.isSubmitting} aria-busy={form.formState.isSubmitting}>
+          {form.formState.isSubmitting ? "Submitting..." : "submit"}
         </Button>
       </CardFooter>
     </Card>

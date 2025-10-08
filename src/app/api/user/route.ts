@@ -7,6 +7,7 @@ import {
 } from "@/lib/api-response";
 import { userService } from "@/server/user";
 import { NextRequest } from "next/server";
+import { prettifyError } from "zod";
 
 // export const GET = apiHandler<NextRequest>(async () => {
 //   const yt = await userService.getAllUsers();
@@ -32,7 +33,12 @@ export const POST = apiHandler<NextRequest>(async (req) => {
   const validatedBody = userInsertSchema.safeParse(body);
 
   if (!validatedBody.success) {
-    throw new BadRequestException(validatedBody.error.message.normalize());
+    throw new BadRequestException({
+      message: "Invalid input",
+      details: {
+        errors: prettifyError(validatedBody.error),
+      },
+    });
   }
 
   await userService.createUser(body);

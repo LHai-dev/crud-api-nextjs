@@ -11,7 +11,7 @@ export function TablePlaceholder({
   colCount = 7,
 }: TablePlaceholderProps) {
   return (
-    <tbody>
+    <>
       {Array.from({ length: rowCount }).map((_, rowIndex) => (
         <tr key={rowIndex} className="border-b">
           {Array.from({ length: colCount }).map((_, colIndex) => (
@@ -21,6 +21,6 @@ export function TablePlaceholder({
           ))}
         </tr>
       ))}
-    </tbody>
+    </>
   );
 }

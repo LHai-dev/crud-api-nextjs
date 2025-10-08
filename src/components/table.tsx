@@ -20,7 +20,11 @@ import { TablePlaceholder } from "./table-placeholder";
 import { AlertDialogButton } from "./alert-dialog";
 
 type SortField = "firstName" | "lastName" | "age";
-const ALLOWED_SORT_FIELDS: SortField[] = ["firstName", "lastName", "age"];
+const ALLOWED_SORT_FIELDS: SortField[] = [
+  "firstName",
+  "lastName",
+  "age",
+] as const;
 
 export default function UsersTable() {
   const router = useRouter();
@@ -29,7 +33,6 @@ export default function UsersTable() {
 
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
@@ -45,34 +48,25 @@ export default function UsersTable() {
   const [sortBy, setSortBy] = useState<SortField>(validSortBy);
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">(validSortOrder);
 
-  const [isMounted, setIsMounted] = useState(false);
-
   useEffect(() => {
     setSearch(searchInput);
   }, [searchInput]);
 
   useEffect(() => {
-    if (!isMounted) {
-      setIsMounted(true);
-      return;
-    }
-
     const params = new URLSearchParams();
     if (search) params.set("search", search);
     params.set("sortBy", sortBy);
     params.set("sortOrder", sortOrder);
     router.replace(`${pathname}?${params.toString()}`);
-  }, [sortBy, sortOrder, search, router, pathname, isMounted]);
+  }, [sortBy, sortOrder, search, router, pathname]);
 
   const loadUsers = useCallback(async () => {
     setLoading(true);
-    setError(null);
     try {
       const data = await fetchUsers(sortBy, sortOrder, search);
       setUsers(data);
     } catch (err) {
       console.error("Failed to fetch users:", err);
-      setError("Failed to load users. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -108,19 +102,21 @@ export default function UsersTable() {
   };
 
   const handleDeleteUser = async (id: number) => {
-    const isDeleted = await deleteUserById(id);
-    console.log("deleted : ", isDeleted);
-
+    setLoading(true);
     try {
-      const data = await fetchUsers(sortBy, sortOrder, search);
-      setUsers(data);
+      const isDeleted = await deleteUserById(id);
+      if (!isDeleted) {
+        throw new Error("Delete request failed");
+      }
+      await loadUsers();
     } catch (err) {
-      console.error("Failed to fetch users:", err);
-      setError("Failed to load users. Please try again.");
+      console.error("Failed to delete user:", err);
     } finally {
       setLoading(false);
     }
   };
+
+  const handleEditUser = (user: User) => {};
 
   return (
     <div className="space-y-6">
@@ -132,14 +128,9 @@ export default function UsersTable() {
           onChange={(e) => setSearchInput(e.target.value)}
           className="max-w-sm"
           aria-label="Search users"
+          type="search"
         />
       </div>
-
-      {error && (
-        <div className="text-destructive text-sm p-2 bg-destructive/10 rounded">
-          {error}
-        </div>
-      )}
 
       <Table>
         <TableHeader>
@@ -209,7 +200,11 @@ export default function UsersTable() {
                       id={user.id}
                       onDelete={(id) => handleDeleteUser(id)}
                     />
-                    <Button variant="outline" size="sm">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => handleEditUser(user)}
+                    >
                       Update
                     </Button>
                   </div>
